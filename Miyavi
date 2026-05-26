@@ -1,0 +1,1443 @@
+local Fluent, SaveManager, InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/Beta.lua"))()
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local part = character:WaitForChild("HumanoidRootPart")
+
+-- Services
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+-- Toggle States Table
+local states = {
+    Rebirth = false,
+    IncLuck = false,
+    RPUpgrade = false,
+    Secret1 = false,
+    Secret2 = false,
+    Prestige = false,
+    DecLuck = false,
+    Clover1 = false,
+    Clover2 = false,
+    AutoLuck = false,
+    -- Prestige Tab
+    RaiseTimePoint = false,
+    RPPrestige = false,
+    SMPrestige = false,
+    PPPrestige = false,
+    -- Global Stop
+    StopActivities = false,
+    -- Extras
+    CycleMode = false
+}
+
+local cyclePhase = "IncLuck"
+local IsButtonUsable -- forward declaration, defined later
+
+-- Create Window
+local Window = Fluent:CreateWindow({
+    Title = "Lost From Light",
+    SubTitle = "by Miyavi",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.Delete
+})
+
+-- Custom Toggle Button
+local toggleGui = Instance.new("ScreenGui")
+toggleGui.Name = "FluentToggle"
+toggleGui.ResetOnSpawn = false
+toggleGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+toggleGui.Parent = player:WaitForChild("PlayerGui")
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Name = "ToggleBtn"
+toggleBtn.Size = UDim2.new(0, 40, 0, 40)
+toggleBtn.Position = UDim2.new(0, 10, 0, 10)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+toggleBtn.Text = "A"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.TextSize = 18
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Parent = toggleGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 8)
+corner.Parent = toggleBtn
+
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+shadow.BackgroundTransparency = 1
+shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+shadow.Size = UDim2.new(1, 20, 1, 20)
+shadow.ZIndex = -1
+shadow.Image = "rbxassetid://5554236805"
+shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency = 0.6
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(23, 23, 277, 277)
+shadow.Parent = toggleBtn
+
+toggleBtn.MouseEnter:Connect(function()
+    TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}):Play()
+end)
+
+toggleBtn.MouseLeave:Connect(function()
+    TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 40)}):Play()
+end)
+
+local guiVisible = true
+toggleBtn.MouseButton1Click:Connect(function()
+    guiVisible = not guiVisible
+    if guiVisible then
+        toggleBtn.Text = "A"
+        TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 40)}):Play()
+    else
+        toggleBtn.Text = "Â±"
+        TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 170, 255)}):Play()
+    end
+    if guiVisible then
+        Window:Minimize(false)
+    else
+        Window:Minimize(true)
+    end
+end)
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.RightShift then
+        toggleBtn.MouseButton1Click:Fire()
+    end
+end)
+
+-- Tabs
+local MainTab = Window:AddTab({ Title = "Main", Icon = "rbxassetid://10723424505" })
+local RunesTab = Window:AddTab({ Title = "Runes", Icon = "rbxassetid://10723415908" })
+local PrestigeTab = Window:AddTab({ Title = "Prestige", Icon = "rbxassetid://10723424505" })
+local ExtrasTab = Window:AddTab({ Title = "Extras", Icon = "rbxassetid://10723393420" })
+
+-- ============================================
+-- STOP ACTIVITIES LOGIC
+-- ============================================
+
+local function ShouldRun()
+    return not states.StopActivities
+end
+
+-- ============================================
+-- PRESTIGE TAB LOOPS (Always run regardless of StopActivities)
+-- ============================================
+
+-- Raise time point - workspace.Buttons["Rebirth Upgrade1"]
+task.spawn(function()
+    while true do
+        if states.RaiseTimePoint then
+            local button = workspace.Buttons["Rebirth Upgrade1"]
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+-- RP PRESTIGE - workspace.Buttons:GetChildren()[31]
+task.spawn(function()
+    while true do
+        if states.RPPrestige then
+            local children = workspace.Buttons:GetChildren()
+            local button = children[31]
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+-- SM PRESTIGE - workspace.Buttons:GetChildren()[34]
+task.spawn(function()
+    while true do
+        if states.SMPrestige then
+            local children = workspace.Buttons:GetChildren()
+            local button = children[34]
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+-- PP PRESTIGE - workspace.Buttons["Rebirth Upgrade 5"]
+task.spawn(function()
+    while true do
+        if states.PPPrestige then
+            local button = workspace.Buttons["Rebirth Upgrade 5"]
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+-- ============================================
+-- PRESTIGE TAB UI
+-- ============================================
+
+PrestigeTab:AddToggle("StopActivitiesToggle", {
+    Title = "Stop activities",
+    Description = "Pause all activities except Prestige buttons",
+    Default = false,
+    Callback = function(Value)
+        states.StopActivities = Value
+        if Value then
+            print("Activities STOPPED - Only Prestige buttons active")
+        else
+            print("Activities RESUMED - All toggles active again")
+        end
+    end
+})
+
+PrestigeTab:AddSection("Prestige Buttons")
+
+PrestigeTab:AddToggle("RaiseTimePointToggle", {
+    Title = "Raise time point",
+    Default = false,
+    Callback = function(Value)
+        states.RaiseTimePoint = Value
+    end
+})
+
+PrestigeTab:AddToggle("RPPrestigeToggle", {
+    Title = "RP PRESTIGE",
+    Default = false,
+    Callback = function(Value)
+        states.RPPrestige = Value
+    end
+})
+
+PrestigeTab:AddToggle("SMPrestigeToggle", {
+    Title = "SM PRESTIGE",
+    Default = false,
+    Callback = function(Value)
+        states.SMPrestige = Value
+    end
+})
+
+PrestigeTab:AddToggle("PPPrestigeToggle", {
+    Title = "PP PRESTIGE",
+    Default = false,
+    Callback = function(Value)
+        states.PPPrestige = Value
+    end
+})
+
+-- Shared alternating loop for Inc Luck / RP Upgrade
+task.spawn(function()
+    while true do
+        if states.CycleMode and states.IncLuck and states.RPUpgrade then
+            -- === CYCLE MODE ON: hand off when upgrade runs out ===
+            if cyclePhase == "IncLuck" then
+                local button = workspace.Buttons["Rebirth Upgrade11"]
+                if button and button:IsA("BasePart") and IsButtonUsable(button) then
+                    for i = 1, 3 do
+                        firetouchinterest(part, button, 0)
+                        firetouchinterest(part, button, 1)
+                    end
+                else
+                    cyclePhase = "RPUpgrade"
+                end
+            else
+                local button = workspace.Buttons:GetChildren()[25]
+                if button and button:IsA("BasePart") and IsButtonUsable(button) then
+                    for i = 1, 3 do
+                        firetouchinterest(part, button, 0)
+                        firetouchinterest(part, button, 1)
+                    end
+                else
+                    cyclePhase = "IncLuck"
+                end
+            end
+            task.wait(0.05)
+        else
+            -- === CYCLE MODE OFF: original behaviour ===
+            if ShouldRun() and states.IncLuck then
+                local button = workspace.Buttons["Rebirth Upgrade11"]
+                if button and button:IsA("BasePart") then
+                    for i = 1, 3 do
+                        firetouchinterest(part, button, 0)
+                        firetouchinterest(part, button, 1)
+                    end
+                end
+                task.wait(0.05)
+            end
+            
+            if ShouldRun() and states.RPUpgrade then
+                local button = workspace.Buttons:GetChildren()[25]
+                if button and button:IsA("BasePart") then
+                    for i = 1, 3 do
+                        firetouchinterest(part, button, 0)
+                        firetouchinterest(part, button, 1)
+                    end
+                end
+                task.wait(0.05)
+            end
+            
+            if not states.IncLuck and not states.RPUpgrade then
+                task.wait(0.1)
+            elseif states.StopActivities then
+                task.wait(0.5)
+            end
+        end
+    end
+end)
+
+-- FIXED: Rebirth loop
+task.spawn(function()
+    while true do
+        if ShouldRun() and states.Rebirth then
+            local button = workspace.Buttons["Rebirth Get"]
+            if button and button:IsA("BasePart") then
+                firetouchinterest(part, button, 0)
+                firetouchinterest(part, button, 1)
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+-- Main Tab Elements
+
+MainTab:AddToggle("RebirthToggle", {
+    Title = "Rebirth",
+    Default = false,
+    Callback = function(Value)
+        states.Rebirth = Value
+    end
+})
+
+MainTab:AddToggle("IncLuckToggle", {
+    Title = "Inc Luck",
+    Default = false,
+    Callback = function(Value)
+        states.IncLuck = Value
+    end
+})
+
+MainTab:AddToggle("RPUpgradeToggle", {
+    Title = "RP Upgrade",
+    Default = false,
+    Callback = function(Value)
+        states.RPUpgrade = Value
+    end
+})
+
+-- Secret loops
+task.spawn(function()
+    while true do
+        if ShouldRun() and states.Secret1 then
+            local button = workspace.Buttons:GetChildren()[32]
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait()
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if states.Secret2 then
+            local button = workspace.Buttons:GetChildren()[33]
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait()
+    end
+end)
+
+MainTab:AddToggle("Secret1Toggle", {
+    Title = "Secret 1",
+    Default = false,
+    Callback = function(Value)
+        states.Secret1 = Value
+    end
+})
+
+MainTab:AddToggle("Secret2Toggle", {
+    Title = "Secret 2",
+    Default = false,
+    Callback = function(Value)
+        states.Secret2 = Value
+    end
+})
+
+-- Runes Tab
+task.spawn(function()
+    while true do
+        if ShouldRun() and states.Prestige then
+            local button = workspace.runezz.RollRarity
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait()
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if ShouldRun() and states.DecLuck then
+            local button = workspace.runezzz.RollRarity
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait()
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if ShouldRun() and states.Clover1 then
+            local button = workspace.runez.RollRarity
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait()
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if ShouldRun() and states.Clover2 then
+            local button = workspace.runeth.RollRarity
+            if button and button:IsA("BasePart") then
+                for i = 1, 5 do
+                    firetouchinterest(part, button, 0)
+                    firetouchinterest(part, button, 1)
+                end
+            end
+        end
+        task.wait()
+    end
+end)
+
+RunesTab:AddToggle("PrestigeToggle", {
+    Title = "Prestige",
+    Default = false,
+    Callback = function(Value)
+        states.Prestige = Value
+    end
+})
+
+RunesTab:AddToggle("DecLuckToggle", {
+    Title = "Dec Luck",
+    Default = false,
+    Callback = function(Value)
+        states.DecLuck = Value
+    end
+})
+
+RunesTab:AddToggle("Clover1Toggle", {
+    Title = "Clover 1",
+    Default = false,
+    Callback = function(Value)
+        states.Clover1 = Value
+    end
+})
+
+RunesTab:AddToggle("Clover2Toggle", {
+    Title = "Clover 2",
+    Default = false,
+    Callback = function(Value)
+        states.Clover2 = Value
+    end
+})
+
+-- ============================================
+-- NEW: AUTO BASE LUCK SYSTEM (EXPLICIT PATHS)
+-- ============================================
+
+-- Function to check if button is glowing/available
+IsButtonUsable = function(button)
+    if not button or not button:IsA("BasePart") then
+        return false
+    end
+    
+    -- Method 1: Check for Highlight (most common for selection glow)
+    if button:FindFirstChild("Highlight") then
+        return true
+    end
+    
+    -- Method 2: Check Material (Neon = glowing)
+    if button.Material == Enum.Material.Neon then
+        return true
+    end
+    
+    -- Method 3: Check for PointLight or SurfaceLight (actual light source)
+    if button:FindFirstChildOfClass("PointLight") or button:FindFirstChildOfClass("SurfaceLight") then
+        return true
+    end
+    
+    -- Method 4: Check BillboardGui text color (green = available, red = locked)
+    local billboard = button:FindFirstChildOfClass("BillboardGui")
+    if billboard then
+        local textLabel = billboard:FindFirstChildOfClass("TextLabel")
+        if textLabel then
+            local color = textLabel.TextColor3
+            -- Green indicates available
+            if color.G > 0.5 and color.R < 0.4 then
+                return true
+            end
+        end
+    end
+    
+    -- Method 5: Check if color is bright (glowing buttons are usually bright red/orange)
+    local color = button.Color
+    local brightness = (color.R + color.G + color.B) / 3
+    if brightness > 0.6 then
+        return true
+    end
+    
+    -- Method 6: Check for "Available" attribute
+    if button:GetAttribute("Available") == true then
+        return true
+    end
+    
+    return false
+end
+
+-- Auto Base Luck Loop - Checks from BEST to WORST, touches first usable one
+task.spawn(function()
+    while true do
+        if ShouldRun() and states.AutoLuck then
+            local touched = false
+            
+            -- EXPLICIT CHECKS FROM BEST TO WORST
+            -- Using exact workspace paths as provided by user
+            
+            -- 82. Rarity#50000 (BEST)
+            local btn = workspace.Buttons:FindFirstChild("ult")
+            if btn and IsButtonUsable(btn) then
+                firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                touched = true
+            end
+            
+            -- 81. Rarity#40000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[102] and IsButtonUsable(children[102]) then
+                    firetouchinterest(part, children[102], 0); task.wait(0.01); firetouchinterest(part, children[102], 1)
+                    touched = true
+                end
+            end
+            
+            -- 80. Rarity#39000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[101] and IsButtonUsable(children[101]) then
+                    firetouchinterest(part, children[101], 0); task.wait(0.01); firetouchinterest(part, children[101], 1)
+                    touched = true
+                end
+            end
+            
+            -- 79. Rarity#38000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[100] and IsButtonUsable(children[100]) then
+                    firetouchinterest(part, children[100], 0); task.wait(0.01); firetouchinterest(part, children[100], 1)
+                    touched = true
+                end
+            end
+            
+            -- 78. Rarity#37000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[99] and IsButtonUsable(children[99]) then
+                    firetouchinterest(part, children[99], 0); task.wait(0.01); firetouchinterest(part, children[99], 1)
+                    touched = true
+                end
+            end
+            
+            -- 77. Rarity#36000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[98] and IsButtonUsable(children[98]) then
+                    firetouchinterest(part, children[98], 0); task.wait(0.01); firetouchinterest(part, children[98], 1)
+                    touched = true
+                end
+            end
+            
+            -- 76. Rarity#35000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[97] and IsButtonUsable(children[97]) then
+                    firetouchinterest(part, children[97], 0); task.wait(0.01); firetouchinterest(part, children[97], 1)
+                    touched = true
+                end
+            end
+            
+            -- 75. Rarity#34000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[96] and IsButtonUsable(children[96]) then
+                    firetouchinterest(part, children[96], 0); task.wait(0.01); firetouchinterest(part, children[96], 1)
+                    touched = true
+                end
+            end
+            
+            -- 74. Rarity#33000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[95] and IsButtonUsable(children[95]) then
+                    firetouchinterest(part, children[95], 0); task.wait(0.01); firetouchinterest(part, children[95], 1)
+                    touched = true
+                end
+            end
+            
+            -- 73. Rarity#32000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[94] and IsButtonUsable(children[94]) then
+                    firetouchinterest(part, children[94], 0); task.wait(0.01); firetouchinterest(part, children[94], 1)
+                    touched = true
+                end
+            end
+            
+            -- 72. Rarity#31000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[93] and IsButtonUsable(children[93]) then
+                    firetouchinterest(part, children[93], 0); task.wait(0.01); firetouchinterest(part, children[93], 1)
+                    touched = true
+                end
+            end
+            
+            -- 71. Rarity#30000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[92] and IsButtonUsable(children[92]) then
+                    firetouchinterest(part, children[92], 0); task.wait(0.01); firetouchinterest(part, children[92], 1)
+                    touched = true
+                end
+            end
+            
+            -- 70. Rarity#29000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[91] and IsButtonUsable(children[91]) then
+                    firetouchinterest(part, children[91], 0); task.wait(0.01); firetouchinterest(part, children[91], 1)
+                    touched = true
+                end
+            end
+            
+            -- 69. Rarity#28000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[90] and IsButtonUsable(children[90]) then
+                    firetouchinterest(part, children[90], 0); task.wait(0.01); firetouchinterest(part, children[90], 1)
+                    touched = true
+                end
+            end
+            
+            -- 68. Rarity#27000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[89] and IsButtonUsable(children[89]) then
+                    firetouchinterest(part, children[89], 0); task.wait(0.01); firetouchinterest(part, children[89], 1)
+                    touched = true
+                end
+            end
+            
+            -- 67. Rarity#26000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[88] and IsButtonUsable(children[88]) then
+                    firetouchinterest(part, children[88], 0); task.wait(0.01); firetouchinterest(part, children[88], 1)
+                    touched = true
+                end
+            end
+            
+            -- 66. Rarity#25000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[87] and IsButtonUsable(children[87]) then
+                    firetouchinterest(part, children[87], 0); task.wait(0.01); firetouchinterest(part, children[87], 1)
+                    touched = true
+                end
+            end
+            
+            -- 65. Rarity#24000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[86] and IsButtonUsable(children[86]) then
+                    firetouchinterest(part, children[86], 0); task.wait(0.01); firetouchinterest(part, children[86], 1)
+                    touched = true
+                end
+            end
+            
+            -- 64. Rarity#23000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[85] and IsButtonUsable(children[85]) then
+                    firetouchinterest(part, children[85], 0); task.wait(0.01); firetouchinterest(part, children[85], 1)
+                    touched = true
+                end
+            end
+            
+            -- 63. Rarity#22000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[84] and IsButtonUsable(children[84]) then
+                    firetouchinterest(part, children[84], 0); task.wait(0.01); firetouchinterest(part, children[84], 1)
+                    touched = true
+                end
+            end
+            
+            -- 62. Rarity#21000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[83] and IsButtonUsable(children[83]) then
+                    firetouchinterest(part, children[83], 0); task.wait(0.01); firetouchinterest(part, children[83], 1)
+                    touched = true
+                end
+            end
+            
+            -- 61. Rarity#20000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[82] and IsButtonUsable(children[82]) then
+                    firetouchinterest(part, children[82], 0); task.wait(0.01); firetouchinterest(part, children[82], 1)
+                    touched = true
+                end
+            end
+            
+            -- 60. Rarity#19000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[81] and IsButtonUsable(children[81]) then
+                    firetouchinterest(part, children[81], 0); task.wait(0.01); firetouchinterest(part, children[81], 1)
+                    touched = true
+                end
+            end
+            
+            -- 59. Rarity#18000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[80] and IsButtonUsable(children[80]) then
+                    firetouchinterest(part, children[80], 0); task.wait(0.01); firetouchinterest(part, children[80], 1)
+                    touched = true
+                end
+            end
+            
+            -- 58. Rarity#17000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[79] and IsButtonUsable(children[79]) then
+                    firetouchinterest(part, children[79], 0); task.wait(0.01); firetouchinterest(part, children[79], 1)
+                    touched = true
+                end
+            end
+            
+            -- 57. Rarity#16000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[78] and IsButtonUsable(children[78]) then
+                    firetouchinterest(part, children[78], 0); task.wait(0.01); firetouchinterest(part, children[78], 1)
+                    touched = true
+                end
+            end
+            
+            -- 56. Rarity#15000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[77] and IsButtonUsable(children[77]) then
+                    firetouchinterest(part, children[77], 0); task.wait(0.01); firetouchinterest(part, children[77], 1)
+                    touched = true
+                end
+            end
+            
+            -- 55. Rarity#14000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[76] and IsButtonUsable(children[76]) then
+                    firetouchinterest(part, children[76], 0); task.wait(0.01); firetouchinterest(part, children[76], 1)
+                    touched = true
+                end
+            end
+            
+            -- 54. Rarity#13000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[75] and IsButtonUsable(children[75]) then
+                    firetouchinterest(part, children[75], 0); task.wait(0.01); firetouchinterest(part, children[75], 1)
+                    touched = true
+                end
+            end
+            
+            -- 53. Rarity#12000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[74] and IsButtonUsable(children[74]) then
+                    firetouchinterest(part, children[74], 0); task.wait(0.01); firetouchinterest(part, children[74], 1)
+                    touched = true
+                end
+            end
+            
+            -- 52. Rarity#11000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[73] and IsButtonUsable(children[73]) then
+                    firetouchinterest(part, children[73], 0); task.wait(0.01); firetouchinterest(part, children[73], 1)
+                    touched = true
+                end
+            end
+            
+            -- 51. Rarity#10000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[72] and IsButtonUsable(children[72]) then
+                    firetouchinterest(part, children[72], 0); task.wait(0.01); firetouchinterest(part, children[72], 1)
+                    touched = true
+                end
+            end
+            
+            -- 50. Rarity#9500
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[71] and IsButtonUsable(children[71]) then
+                    firetouchinterest(part, children[71], 0); task.wait(0.01); firetouchinterest(part, children[71], 1)
+                    touched = true
+                end
+            end
+            
+            -- 49. Rarity#9000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[70] and IsButtonUsable(children[70]) then
+                    firetouchinterest(part, children[70], 0); task.wait(0.01); firetouchinterest(part, children[70], 1)
+                    touched = true
+                end
+            end
+            
+            -- 48. Rarity#8500
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[69] and IsButtonUsable(children[69]) then
+                    firetouchinterest(part, children[69], 0); task.wait(0.01); firetouchinterest(part, children[69], 1)
+                    touched = true
+                end
+            end
+            
+            -- 47. Rarity#8000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[67] and IsButtonUsable(children[67]) then
+                    firetouchinterest(part, children[67], 0); task.wait(0.01); firetouchinterest(part, children[67], 1)
+                    touched = true
+                end
+            end
+            
+            -- 46. Rarity#7777
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[68] and IsButtonUsable(children[68]) then
+                    firetouchinterest(part, children[68], 0); task.wait(0.01); firetouchinterest(part, children[68], 1)
+                    touched = true
+                end
+            end
+            
+            -- 45. Rarity#7500
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[66] and IsButtonUsable(children[66]) then
+                    firetouchinterest(part, children[66], 0); task.wait(0.01); firetouchinterest(part, children[66], 1)
+                    touched = true
+                end
+            end
+            
+            -- 44. Rarity#7000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[65] and IsButtonUsable(children[65]) then
+                    firetouchinterest(part, children[65], 0); task.wait(0.01); firetouchinterest(part, children[65], 1)
+                    touched = true
+                end
+            end
+            
+            -- 43. Rarity#6500
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[64] and IsButtonUsable(children[64]) then
+                    firetouchinterest(part, children[64], 0); task.wait(0.01); firetouchinterest(part, children[64], 1)
+                    touched = true
+                end
+            end
+            
+            -- 42. Rarity#6000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[63] and IsButtonUsable(children[63]) then
+                    firetouchinterest(part, children[63], 0); task.wait(0.01); firetouchinterest(part, children[63], 1)
+                    touched = true
+                end
+            end
+            
+            -- 41. Rarity#5500
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[62] and IsButtonUsable(children[62]) then
+                    firetouchinterest(part, children[62], 0); task.wait(0.01); firetouchinterest(part, children[62], 1)
+                    touched = true
+                end
+            end
+            
+            -- 40. Rarity#5000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[61] and IsButtonUsable(children[61]) then
+                    firetouchinterest(part, children[61], 0); task.wait(0.01); firetouchinterest(part, children[61], 1)
+                    touched = true
+                end
+            end
+            
+            -- 39. Rarity#4500
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[60] and IsButtonUsable(children[60]) then
+                    firetouchinterest(part, children[60], 0); task.wait(0.01); firetouchinterest(part, children[60], 1)
+                    touched = true
+                end
+            end
+            
+            -- 38. Rarity#4000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[59] and IsButtonUsable(children[59]) then
+                    firetouchinterest(part, children[59], 0); task.wait(0.01); firetouchinterest(part, children[59], 1)
+                    touched = true
+                end
+            end
+            
+            -- 37. Rarity#3500
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[58] and IsButtonUsable(children[58]) then
+                    firetouchinterest(part, children[58], 0); task.wait(0.01); firetouchinterest(part, children[58], 1)
+                    touched = true
+                end
+            end
+            
+            -- 36. Rarity#3000
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[57] and IsButtonUsable(children[57]) then
+                    firetouchinterest(part, children[57], 0); task.wait(0.01); firetouchinterest(part, children[57], 1)
+                    touched = true
+                end
+            end
+            
+            -- 35. Ratity#2500
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[56] and IsButtonUsable(children[56]) then
+                    firetouchinterest(part, children[56], 0); task.wait(0.01); firetouchinterest(part, children[56], 1)
+                    touched = true
+                end
+            end
+            
+            -- 34. skibidi toilet
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[55] and IsButtonUsable(children[55]) then
+                    firetouchinterest(part, children[55], 0); task.wait(0.01); firetouchinterest(part, children[55], 1)
+                    touched = true
+                end
+            end
+            
+            -- 33. Hyperdimensional Grandmaster 50
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[54] and IsButtonUsable(children[54]) then
+                    firetouchinterest(part, children[54], 0); task.wait(0.01); firetouchinterest(part, children[54], 1)
+                    touched = true
+                end
+            end
+            
+            -- 32. Omega dimensional Legend 50
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[53] and IsButtonUsable(children[53]) then
+                    firetouchinterest(part, children[53], 0); task.wait(0.01); firetouchinterest(part, children[53], 1)
+                    touched = true
+                end
+            end
+            
+            -- 31. Megadimensional Master Legend 50
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[52] and IsButtonUsable(children[52]) then
+                    firetouchinterest(part, children[52], 0); task.wait(0.01); firetouchinterest(part, children[52], 1)
+                    touched = true
+                end
+            end
+            
+            -- 30. Megadimensional Master 50
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Rares")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 29. Ultradimensional Master Legend II
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Legendarys")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 28. Ultradimensional Master 50
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[39] and IsButtonUsable(children[39]) then
+                    firetouchinterest(part, children[39], 0); task.wait(0.01); firetouchinterest(part, children[39], 1)
+                    touched = true
+                end
+            end
+            
+            -- 27. Multidimensional Master Legend 38
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("x")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 26. Multidimensional Grandmaster 27
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[41] and IsButtonUsable(children[41]) then
+                    firetouchinterest(part, children[41], 0); task.wait(0.01); firetouchinterest(part, children[41], 1)
+                    touched = true
+                end
+            end
+            
+            -- 25. Dimensional Overlord 50
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[42] and IsButtonUsable(children[42]) then
+                    firetouchinterest(part, children[42], 0); task.wait(0.01); firetouchinterest(part, children[42], 1)
+                    touched = true
+                end
+            end
+            
+            -- 24. Dimensional Legend 50
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[43] and IsButtonUsable(children[43]) then
+                    firetouchinterest(part, children[43], 0); task.wait(0.01); firetouchinterest(part, children[43], 1)
+                    touched = true
+                end
+            end
+            
+            -- 23. Dimensional Legend 5
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[44] and IsButtonUsable(children[44]) then
+                    firetouchinterest(part, children[44], 0); task.wait(0.01); firetouchinterest(part, children[44], 1)
+                    touched = true
+                end
+            end
+            
+            -- 22. Dimensional Master 50
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[45] and IsButtonUsable(children[45]) then
+                    firetouchinterest(part, children[45], 0); task.wait(0.01); firetouchinterest(part, children[45], 1)
+                    touched = true
+                end
+            end
+            
+            -- 21. Hyperdimensional
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[46] and IsButtonUsable(children[46]) then
+                    firetouchinterest(part, children[46], 0); task.wait(0.01); firetouchinterest(part, children[46], 1)
+                    touched = true
+                end
+            end
+            
+            -- 20. Megadimensional XXV
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[47] and IsButtonUsable(children[47]) then
+                    firetouchinterest(part, children[47], 0); task.wait(0.01); firetouchinterest(part, children[47], 1)
+                    touched = true
+                end
+            end
+            
+            -- 19. Multidimensional XXV
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[48] and IsButtonUsable(children[48]) then
+                    firetouchinterest(part, children[48], 0); task.wait(0.01); firetouchinterest(part, children[48], 1)
+                    touched = true
+                end
+            end
+            
+            -- 18. AscendantLuck XX
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[49] and IsButtonUsable(children[49]) then
+                    firetouchinterest(part, children[49], 0); task.wait(0.01); firetouchinterest(part, children[49], 1)
+                    touched = true
+                end
+            end
+            
+            -- 17. GalacticLuck X
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[50] and IsButtonUsable(children[50]) then
+                    firetouchinterest(part, children[50], 0); task.wait(0.01); firetouchinterest(part, children[50], 1)
+                    touched = true
+                end
+            end
+            
+            -- 16. CosmicLuck V
+            if not touched then
+                local children = workspace.Buttons:GetChildren()
+                if children[51] and IsButtonUsable(children[51]) then
+                    firetouchinterest(part, children[51], 0); task.wait(0.01); firetouchinterest(part, children[51], 1)
+                    touched = true
+                end
+            end
+            
+            -- 15. CelestialLuck XV
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("200")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 14. ExoticLuck V
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("160")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 13. Cool Rarity
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("125")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 12. MegaLuck VII
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("100")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 11. superLuck III
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("80")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 10. Rarity Legend II
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("64")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 9. Mega Grandmaster II
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("50")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 8. Grandmaster
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Overlord")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 7. Celestial
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Celestial")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 6. Unknown
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Unknown")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 5. Overdrive
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Overdrive")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 4. Extreme
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Xtrm")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 3. Super
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Super")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 2. Legendary
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Legendary")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            -- 1. Rare (WORST - only touch if nothing else available)
+            if not touched then
+                local btn = workspace.Buttons:FindFirstChild("Rare")
+                if btn and IsButtonUsable(btn) then
+                    firetouchinterest(part, btn, 0); task.wait(0.01); firetouchinterest(part, btn, 1)
+                    touched = true
+                end
+            end
+            
+            task.wait(0.3) -- Wait between cycles
+        else
+            task.wait(0.5) -- Wait when disabled
+        end
+    end
+end)
+
+ExtrasTab:AddToggle("AutoLuckToggle", {
+    Title = "Auto Base Luck",
+    Description = "Auto-touches best usable Base Luck button",
+    Default = false,
+    Callback = function(Value)
+        states.AutoLuck = Value
+    end
+})
+
+ExtrasTab:AddToggle("CycleModeToggle", {
+    Title = "Inc Luck / RP Upgrade Cycle",
+    Description = "ON: cycles between Inc Luck and RP Upgrade, waiting for each to run out before switching. OFF: original behaviour.",
+    Default = false,
+    Callback = function(Value)
+        states.CycleMode = Value
+        if Value then
+            cyclePhase = "IncLuck"
+        end
+    end
+})
+
+-- ============================================
+-- COLLECT CLOVERS - ADDED TO EXTRAS TAB
+-- ============================================
+
+local clovaFolder = workspace:WaitForChild("clova", 8)
+if not clovaFolder then
+    warn("clova folder not found!")
+else
+    local collecting = false
+    local collected = {}
+
+    local BATCH_SIZE = 25
+    local BATCH_DELAY = 0.005
+    local SCAN_DELAY = 0.05
+
+    local function FastTouch(model)
+        if not model or not model.Parent then return end
+        if collected[model] then return end
+        
+        collected[model] = true
+        
+        for _, partObj in ipairs(model:GetDescendants()) do
+            if partObj:IsA("BasePart") then
+                pcall(function()
+                    firetouchinterest(part, partObj, 0)
+                    firetouchinterest(part, partObj, 1)
+                end)
+            end
+        end
+    end
+
+    local function ProcessBatch(clovers, startIdx)
+        local endIdx = math.min(startIdx + BATCH_SIZE - 1, #clovers)
+        for i = startIdx, endIdx do
+            FastTouch(clovers[i])
+        end
+        return endIdx < #clovers
+    end
+
+    local function GetAllClovers()
+        local four = {}
+        local three = {}
+        
+        for _, model in ipairs(clovaFolder:GetChildren()) do
+            if model:IsA("Model") or model:IsA("Folder") then
+                if not collected[model] then
+                    local name = model.Name:lower()
+                    if name:find("four") then
+                        table.insert(four, model)
+                    elseif name:find("three") then
+                        table.insert(three, model)
+                    end
+                end
+            end
+        end
+        
+        for _, v in ipairs(three) do
+            table.insert(four, v)
+        end
+        
+        return four
+    end
+
+    local function TurboCollect()
+        while collecting do
+            if states.StopActivities then
+                task.wait(0.5)
+            else
+                local clovers = GetAllClovers()
+                local total = #clovers
+                
+                if total > 0 then
+                    local idx = 1
+                    while idx <= total do
+                        local hasMore = ProcessBatch(clovers, idx)
+                        idx = idx + BATCH_SIZE
+                        if hasMore then
+                            task.wait(BATCH_DELAY)
+                        end
+                    end
+                end
+                
+                task.wait(SCAN_DELAY)
+            end
+        end
+    end
+
+    task.spawn(function()
+        while true do
+            task.wait(5)
+            if not collecting then break end
+            local count = 0
+            for _ in pairs(collected) do count = count + 1 end
+            if count > 500 then
+                collected = {}
+            end
+        end
+    end)
+
+    ExtrasTab:AddToggle("CollectCloversToggle", {
+        Title = "Collect clovers",
+        Description = "Max speed ghost collect all clovers",
+        Default = false,
+        Callback = function(Value)
+            collecting = Value
+            
+            if Value then
+                collected = {}
+                task.spawn(TurboCollect)
+            end
+        end
+    })
+end
+
+-- Save Manager
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+
+InterfaceManager:BuildInterfaceSection(MainTab)
+SaveManager:BuildConfigSection(MainTab)
+
+Window:SelectTab(1)
+SaveManager:LoadAutoloadConfig()
